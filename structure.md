@@ -14,3 +14,8 @@ job-system/
 │   ├── metrics/
 │   └── logging/
 └── docker-compose.yml
+
+
+shit to consider 
+first create the db folder which should contains the schema(migration) and queries
+schema changes/create the shit in table using goose command 
