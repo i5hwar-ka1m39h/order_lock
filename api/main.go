@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/i5hwar-ka1m39h/order_lock/api/db"
+	"github.com/i5hwar-ka1m39h/order_lock/api/db/generated"
 	"github.com/joho/godotenv"
 )
 
@@ -22,6 +25,17 @@ func main() {
 
 	port := os.Getenv("PORT")
 
+	dbUrl := os.Getenv("DB_URL")
+
+	ctx := context.Background()
+	pool := db.Nex(ctx, dbUrl)
+	defer pool.Close()
+
+	querie := generated.New(pool)
+
+	apiCfg := Config{
+		DB: querie,
+	}
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(
@@ -47,33 +61,34 @@ func main() {
 
 	log.Println("server running of the port :", port)
 	err = server.ListenAndServe()
-	if err != nil{
+	if err != nil {
 		log.Fatalln("error starting server", err)
 	}
 }
 
-type Shit struct{
-	Title string `json:"title"`
+type Shit struct {
+	Title       string `json:"title"`
 	Description string `json:"description"`
-	Length int32 `json:"length"`
-	Amount int32 `json:"amount"`
-	Unit string `json:"unit"`
+	Length      int32  `json:"length"`
+	Amount      int32  `json:"amount"`
+	Unit        string `json:"unit"`
 }
 
-func giveShit(w http.ResponseWriter, r *http.Request){
+func giveShit(w http.ResponseWriter, r *http.Request) {
 	data := Shit{
-		Title: "the hard shit from maida",
+		Title:       "the hard shit from maida",
 		Description: "due to eating stuff made of maida the shit is hard as hell.",
-		Length: 2,
-		Amount: 50,
-		Unit: "cubic-cm",
+		Length:      2,
+		Amount:      50,
+		Unit:        "cubic-cm",
 	}
-	
-	jsonData , err := json.Marshal(data)
-	if err != nil{
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
 		log.Fatalln("error parsing json", err)
 	}
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(jsonData)
 }
+
