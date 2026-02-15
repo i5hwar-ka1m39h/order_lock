@@ -56,6 +56,7 @@ func main() {
 	v1router := chi.NewRouter()
 
 	v1router.Get("/shit", giveShit)
+	v1router.Post("/mail", apiCfg.handleEDCreate)
 
 	r.Mount("/v1", v1router)
 

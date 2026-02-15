@@ -7,9 +7,10 @@ import (
 	"net/http"
 
 	"github.com/i5hwar-ka1m39h/order_lock/api/db/generated"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request, email_delivery generated.EmailDelivery) {
+func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request ) {
 	type body struct {
 		Recipient  string `json:"recipient"`
 		Sender     string `json:"sender"`
@@ -28,12 +29,21 @@ func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request, email
 		errorResponse(w, 400, fmt.Sprintln("error parsing email body", err))
 		return
 	}
+	cc := pgtype.Text{
+		String: email_body.Cc,
+		Valid: email_body.Cc != "",
+	}
+
+	bcc := pgtype.Text{
+		String: email_body.Bcc,
+		Valid: email_body.Bcc != "",
+	}
 
 	email_resp, err := conf.DB.CreateEmailDelivery(r.Context(), generated.CreateEmailDeliveryParams{
 		Recipient: email_body.Recipient,
 		Sender: email_body.Sender,
-		Cc: email_delivery.Cc,
-		Bcc: email_delivery.Bcc,
+		Cc: cc,
+		Bcc: bcc,
 		Subject: email_body.Subject,
 		Body: email_body.Body,
 
@@ -45,6 +55,6 @@ func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request, email
 		return
 	}
 
-	jsonResponseWriter(w, 201, email_resp)
+	jsonResponseWriter(w, 201, "email delivery option created successfully", email_resp)
 
 }
