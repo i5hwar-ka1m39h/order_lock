@@ -26,7 +26,7 @@ func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request ) {
 	err := decoder.Decode(&email_body)
 	if err != nil{
 		log.Println("error while decoding the email body", err)
-		errorResponse(w, 400, fmt.Sprintln("error parsing email body", err))
+		ErrorResponse(w, 400, fmt.Sprintln("error parsing email body", err))
 		return
 	}
 	cc := pgtype.Text{
@@ -51,10 +51,10 @@ func (conf *Config) handleEDCreate(w http.ResponseWriter, r *http.Request ) {
 
 	if err != nil {
 		log.Println("error occured while saving in db", err)
-		errorResponse(w, 500, fmt.Sprintln("error occured while saving in db", err))
+		ErrorResponse(w, 500, fmt.Sprintln("error occured while saving in db", err))
 		return
 	}
 
-	jsonResponseWriter(w, 201, "email delivery option created successfully", email_resp)
+	JsonResponseWriter(w, 201, "email delivery option created successfully", email_resp)
 
 }
